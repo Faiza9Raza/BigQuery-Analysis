@@ -1,64 +1,101 @@
 # BigQuery-Analysis
-Public Dataset Analysis with Google BigQuery
-Project by: Md Faizan Raza
-1. Project Goal
-The objective of this project was to analyze a large-scale public dataset (over 1TB) using Google BigQuery to demonstrate proficiency in advanced SQL, data extraction, and fundamental ETL (Extract, Transform, Load) principles. The chosen dataset for this analysis was the NYC Taxi & Limousine Commission Trips dataset, focusing on identifying ride patterns and peak demand hours.
+NYC Taxi Trips Analysis with Google BigQuery 🚕
+An in-depth analysis of a 1TB+ public dataset to uncover ride patterns and peak demand hours using advanced SQL in Google BigQuery.
 
-2. Tools Used
-Google BigQuery: For querying and processing the massive dataset.
+🎯 Project Goal
+The objective of this project was to demonstrate proficiency in handling large-scale data, writing advanced SQL queries, and performing foundational ETL (Extract, Transform, Load) processes. By analyzing the NYC Taxi Trips dataset, I aimed to extract actionable insights about taxi usage patterns in New York City.
 
-SQL: The primary language used for data manipulation, aggregation, and analysis.
+🛠️ Tech Stack & Tools
+Category
 
-Google Sheets: For final visualization of the aggregated results.
+Technology / Tool
 
-3. Methodology
-The analysis followed a structured four-step process:
+Platform
 
-Data Exploration: Initial queries were run to understand the schema, data types, and distribution of key columns like pickup_datetime, fare_amount, and passenger_count.
+Google Cloud Platform (GCP)
 
-Data Cleaning & Transformation: SQL CASE statements and WHERE clauses were used to handle null values and filter out erroneous data (e.g., trips with zero fare amount or negative trip distance).
+Data Warehouse
 
-Aggregation & Analysis: Advanced SQL queries involving GROUP BY, PARTITION BY, and window functions (ROW_NUMBER(), LAG()) were written to aggregate data and calculate key metrics.
+Google BigQuery
 
-Data Extraction & Visualization: The final aggregated result set was exported from BigQuery and linked to Google Sheets to create clear, simple visualizations presenting the key findings.
+Query Language
 
-4. Sample Advanced SQL Queries
-Below are examples of the SQL queries written during the analysis phase.
+SQL (including CTEs and Window Functions)
 
-Query 1: Identify Peak Pickup Hours by Day of the Week
+Visualization
 
-This query uses a Common Table Expression (CTE) to extract the hour and day of the week, then counts the number of trips to find the busiest times.
+Google Sheets
 
-WITH T AS (
+⚙️ Analysis Workflow
+The project followed a structured data analysis process:
+
+** exploratory Data Analysis (EDA):**
+
+Investigated the table schema to understand data types and column content.
+
+Ran initial COUNT, MIN, and MAX queries to grasp the scale and range of the data.
+
+🧹 Data Cleaning & Transformation:
+
+Used WHERE clauses to filter out invalid records, such as trips with zero fare amount or negative passenger counts.
+
+Employed CASE statements to handle categorical data and create new, more descriptive columns.
+
+📊 Aggregation & Insight Generation:
+
+Wrote advanced SQL queries with GROUP BY and window functions to aggregate data and identify trends.
+
+Focused on key metrics like trip frequency by hour, day, and location.
+
+🎨 Visualization:
+
+Exported the final, aggregated data from BigQuery.
+
+Connected the data to Google Sheets to create clear and simple charts illustrating the key findings.
+
+🚀 Sample Advanced SQL Queries
+<details>
+<summary><strong>Click to Expand: Query 1 - Identify Peak Pickup Hours by Day</strong></summary>
+
+/*
+This query uses a Common Table Expression (CTE) to first extract the
+hour and day of the week, then counts trips to find the busiest times.
+*/
+WITH TripTimes AS (
   SELECT
-    EXTRACT(DAYOFWEEK FROM pickup_datetime) AS day_of_week,
+    EXTRACT(DAYOFWEEK FROM pickup_datetime) AS day_of_week_num,
     EXTRACT(HOUR FROM pickup_datetime) AS pickup_hour
   FROM
     `bigquery-public-data.new_york_taxi_trips.tlc_green_trips_2021`
   WHERE
-    fare_amount > 0
+    fare_amount > 0 AND passenger_count > 0
 )
 SELECT
   CASE
-    WHEN day_of_week = 1 THEN 'Sunday'
-    WHEN day_of_week = 2 THEN 'Monday'
-    WHEN day_of_week = 3 THEN 'Tuesday'
-    WHEN day_of_week = 4 THEN 'Wednesday'
-    WHEN day_of_week = 5 THEN 'Thursday'
-    WHEN day_of_week = 6 THEN 'Friday'
-    WHEN day_of_week = 7 THEN 'Saturday'
-  END AS day,
+    WHEN day_of_week_num = 1 THEN 'Sunday'
+    WHEN day_of_week_num = 2 THEN 'Monday'
+    WHEN day_of_week_num = 3 THEN 'Tuesday'
+    WHEN day_of_week_num = 4 THEN 'Wednesday'
+    WHEN day_of_week_num = 5 THEN 'Thursday'
+    WHEN day_of_week_num = 6 THEN 'Friday'
+    WHEN day_of_week_num = 7 THEN 'Saturday'
+  END AS day_of_week,
   pickup_hour,
   COUNT(*) AS trip_count
-FROM T
-GROUP BY day, pickup_hour
+FROM TripTimes
+GROUP BY day_of_week, pickup_hour
 ORDER BY trip_count DESC
 LIMIT 10;
 
-Query 2: Top 5 Busiest Routes (Pickup to Dropoff)
+</details>
 
-This query identifies the most popular trip routes.
+<details>
+<summary><strong>Click to Expand: Query 2 - Top 5 Busiest Routes</strong></summary>
 
+/*
+This query identifies the most popular trip routes by counting
+the occurrences of each pickup-to-dropoff location pair.
+*/
 SELECT
     PULocationID,
     DOLocationID,
@@ -75,12 +112,19 @@ ORDER BY
     route_count DESC
 LIMIT 5;
 
+</details>
 
-5. Key Findings & Visualizations
-Peak Demand: The analysis revealed that peak taxi demand consistently occurs on Friday and Saturday evenings between 6 PM and 10 PM.
+📈 Key Findings & Visualizations
+The analysis produced several key insights into taxi usage patterns.
 
-Fare Distribution: A histogram of fare_amount showed that the vast majority of trips cost between $5 and $15, with a long tail of higher-fare trips, likely to airports.
+1. Peak Demand Occurs on Weekend Evenings
+The data clearly shows that the highest demand for taxis occurs on Friday and Saturday evenings, specifically between 6 PM and 10 PM.
 
-Busiest Routes: The most frequent trips were identified as short-distance travels within Manhattan's business and entertainment districts.
+Replace this image with a screenshot of your chart from Google Sheets.
 
-(These findings would be presented with charts created in Google Sheets, such as a bar chart for Peak Hours and a table for Busiest Routes).
+2. Most Trips are Short-Distance within Manhattan
+The most frequent routes were identified as short trips within Manhattan's core business and entertainment districts, indicating high usage for local travel.
+
+Replace this image with a screenshot of your table from Google Sheets.
+
+Project by: Md Faizan Raza
